@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProjectFlow | Premium PM Tool</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f5f3ff', 100: '#ede9fe', 200: '#ddd6fe', 300: '#c4b5fd',
+                            400: '#a78bfa', 500: '#8b5cf6', 600: '#7c3aed', 700: '#6d28d9',
+                            800: '#5b21b6', 900: '#4c1d95',
+                        }
+                    },
+                    backdropBlur: {
+                        xs: '2px',
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Icons & Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); }
+        .dark .glass { background: rgba(31, 41, 55, 0.7); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .sidebar-transition { transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 transition-colors duration-300 dark:bg-slate-900 dark:text-slate-100">
+    <div id="app" class="min-h-screen">
+        <!-- Auth View -->
+        <div id="auth-view" class="flex items-center justify-center min-h-screen p-4 hidden">
+            <div class="glass w-full max-w-md p-8 rounded-2xl shadow-2xl">
+                <div class="text-center mb-8">
+                    <div class="inline-flex items-center justify-center w-16 h-16 bg-primary-600 rounded-2xl shadow-lg shadow-primary-500/50 mb-4">
+                        <i class="fas fa-project-diagram text-3xl text-white"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold tracking-tight">ProjectFlow</h2>
+                    <p class="text-slate-500 dark:text-slate-400 mt-2">Manage projects with clarity and speed.</p>
+                </div>
+                <form id="login-form" class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Email Address</label>
+                        <input type="email" id="login-email" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white/50 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all dark:bg-slate-800 dark:border-slate-700 dark:text-white" placeholder="name@company.com" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Password</label>
+                        <input type="password" id="login-password" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white/50 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all dark:bg-slate-800 dark:border-slate-700 dark:text-white" placeholder="••••••••" required>
+                    </div>
+                    <button type="submit" class="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 rounded-xl shadow-lg shadow-primary-600/30 active:scale-[0.98] transition-all">
+                        Sign In
+                    </button>
+                    <p id="login-error" class="text-red-500 text-sm text-center font-medium hidden"></p>
+                </form>
+            </div>
+        </div>
+
+        <!-- Dashboard View -->
+        <div id="dashboard-view" class="flex min-h-screen hidden">
+            <!-- Sidebar -->
+            <aside id="sidebar" class="sidebar-transition w-64 bg-white border-r border-slate-200 dark:bg-slate-800 dark:border-slate-700 flex flex-col fixed inset-y-0 left-0 z-50 -translate-x-full md:translate-x-0">
+                <div class="p-6 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-layer-group text-2xl text-primary-600"></i>
+                        <span class="font-bold text-xl tracking-tight hidden md:inline">ProjectFlow</span>
+                    </div>
+                    <button id="toggle-sidebar" class="text-slate-400 hover:text-primary-600 md:hidden">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+                
+                <nav class="flex-1 px-4 space-y-2 mt-4" id="nav-links">
+                    <!-- Nav links injected by JS -->
+                </nav>
+
+                <div class="p-4 border-t border-slate-100 dark:border-slate-700 space-y-4">
+                    <button id="theme-toggle" class="flex items-center gap-3 w-full px-4 py-3 text-slate-500 hover:bg-slate-50 rounded-xl transition-all dark:text-slate-400 dark:hover:bg-slate-700">
+                        <i class="fas fa-moon w-5" id="theme-icon"></i>
+                        <span class="font-medium" id="theme-text">Dark Mode</span>
+                    </button>
+                    <button id="logout-btn" class="flex items-center gap-3 w-full px-4 py-3 text-red-500 hover:bg-red-50 rounded-xl transition-all dark:hover:bg-red-900/20">
+                        <i class="fas fa-sign-out-alt w-5"></i>
+                        <span class="font-medium">Logout</span>
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="flex-1 md:ml-64 transition-all">
+                <header class="h-16 border-b border-slate-200 bg-white/80 backdrop-blur-md sticky top-0 z-40 dark:bg-slate-800/80 dark:border-slate-700 flex items-center justify-between px-4 md:px-8">
+                    <div class="flex items-center gap-4">
+                        <button id="mobile-toggle" class="p-2 text-slate-500 hover:text-primary-600 md:hidden">
+                            <i class="fas fa-bars text-xl"></i>
+                        </button>
+                        <h1 id="page-title" class="text-lg md:text-xl font-bold truncate">Dashboard</h1>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div id="user-info" class="text-sm font-medium text-slate-500 dark:text-slate-400"></div>
+                        <div id="action-header"></div>
+                    </div>
+                </header>
+
+                <div class="p-8" id="dashboard-content">
+                    <!-- Content injected by JS -->
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="modal-overlay" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[60] flex items-center justify-center p-4 hidden">
+        <div class="glass w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden scale-95 opacity-0 transition-all duration-300" id="modal-box">
+            <div id="modal-inner" class="p-6">
+                <!-- Modal content injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed bottom-8 right-8 z-[100] flex flex-col gap-4"></div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
